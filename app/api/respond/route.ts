@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/app/lib/prisma';
+import { sendTelegramNotification } from '@/app/lib/telegram';
 
 export async function POST(req: Request) {
   try {
     const { locationId } = await req.json();
 
-    // Optional: validate/parse locationId if it's Int (see note below)
-    // const locId = typeof locationId === 'string' ? parseInt(locationId, 10) : locationId;
-
     const latestCall = await prisma.andonCall.findFirst({
       where: { locationId, status: 'pending' },
       orderBy: { calledAt: 'desc' },
+      include: {location: true}
     });
 
     if (!latestCall) {
@@ -28,6 +27,22 @@ export async function POST(req: Request) {
         respondedAt: new Date(),
       },
     });
+
+      // 5. 🔔 Kirim notifikasi Telegram (non-blocking, fire-and-forget)
+    const locationName = latestCall.location?.name || locationId;
+    const durationMs = Date.now() - latestCall.calledAt.getTime();
+    const durationSec = Math.floor(durationMs / 1000 / 60);
+    const message = `✅ **Panggilan Diselesaikan**\n` +
+      `Lokasi: ${locationName}\n` +
+      `Jenis: ${latestCall.category || '—'}\n` +
+      `Ditanggapi pada: ${new Date().toLocaleString('id-ID')}` +
+      `\nDurasi: ${durationSec} menit`;
+
+    // Jalankan async tanpa await → tidak memperlambat respons API
+    sendTelegramNotification(message).catch((err) =>
+      console.warn('[Telegram] Gagal kirim notifikasi:', err)
+    );
+
 
     return NextResponse.json({ success: true });
   } catch (error) {

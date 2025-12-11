@@ -1,12 +1,11 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 
-export default function ScannerPage() {
+function ScannerContent() {
   const searchParams = useSearchParams();
   const locationId = searchParams.get('locationId');
-  console.log({locationId: locationId})
 
   useEffect(() => {
     console.log('🔄 useEffect dijalankan dengan locationId:', locationId);
@@ -37,4 +36,12 @@ export default function ScannerPage() {
   }, [locationId]);
 
   return <div className="p-8 text-center">🔍 Memindai QR...</div>;
+}
+
+export default function ScannerPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ScannerContent />
+    </Suspense>
+  )
 }

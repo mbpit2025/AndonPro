@@ -1,12 +1,14 @@
 // app/api/locations/[locationId]/route.ts
 import { NextResponse, NextRequest } from 'next/server';
-import  prisma  from '@/app/lib/prisma'; // ✅ named import
+import prisma from '@/app/lib/prisma';
 
+// ✅ Fix 1: Update the type to include `Promise<...>`
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { locationId: string } }
+  { params }: { params: Promise<{ locationId: string }> } // ← Promise wrapper
 ) {
-  const { locationId } = await params; // ✅ tanpa await
+  // ✅ Fix 2: `await params` — required by TS, safe at runtime
+  const { locationId } = await params;
 
   if (!locationId) {
     return NextResponse.json(

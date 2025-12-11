@@ -2,8 +2,6 @@ import { NextResponse } from 'next/server';
 import  prisma  from '@/app/lib/prisma';
 import { sendTelegramNotification } from '@/app/lib/telegram';
 
-// GET: ambil panggilan terbaru per lokasi
-// GET semua panggilan (untuk dashboard)
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const locationId = searchParams.get('locationId');
@@ -56,7 +54,19 @@ export async function POST(req: Request) {
 
     // Kirim notifikasi Telegram
     await sendTelegramNotification(
-      `🚨 ANDON BARU!\nLokasi: ${call.location.name}\nJenis: ${category}`
+      `🚨 ANDON BARU!\n` +
+      `Lokasi: ${call.location.name}\n` +
+      `Jenis: ${category}\n` +
+      `Waktu Panggilan: ${new Date().toLocaleString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        // year: 'numeric',
+        // month: '2-digit',
+        // day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      })}`
     );
 
     return NextResponse.json(call, { status: 201 });

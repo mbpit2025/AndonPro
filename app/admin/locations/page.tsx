@@ -31,7 +31,7 @@ export default function LocationsAdmin() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Kelola Lokasi</h1>
 
       <div className="mb-8">
@@ -47,9 +47,9 @@ export default function LocationsAdmin() {
         </button>
       </div>
 
-      <div>
+      <div className='w-full'>
         <h2 className="text-xl font-semibold mb-4">QR Code per Lokasi</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-8 p-6">
           {locations.map((loc) => (
             <QrCodeGenerator key={loc.id} locationId={loc.id} locationName={loc.name} />
           ))}
